@@ -1,0 +1,20 @@
+{
+    "name": "socioseninternet/phpci-drush",
+    "description": "PHPCI plugin for Drush",
+    "license": "GNU",
+    "authors": [
+        {
+            "name": "Ivan Bustos",
+            "email": "contacto@ivanbustos.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "target-dir": "SociosEnInternet/PHPCI/Plugin",
+    "autoload": {
+        "psr-0": {
+            "SociosEnInternet\\PHPCI\\Plugin": ""
+        }
+    }
+}
