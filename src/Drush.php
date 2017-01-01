@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPCI\Plugin;
+namespace SociosEnInternet\PhpciPlugins;
 
 use PHPCI;
 use PHPCI\Builder;
