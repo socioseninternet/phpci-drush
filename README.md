@@ -3,7 +3,7 @@
 Should have Drush already installed. Example usage:
 
 ```yaml
-\socioseninternet\phpcidrush\Drush:
+\SociosEnInternet\PhpciPlugins\Drush:
     command: "version"
     directory: "web"
 ```
