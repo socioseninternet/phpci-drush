@@ -2,7 +2,7 @@
 
 namespace SociosEnInternet\PhpciPlugins;
 
-use PHPCI;
+use PHPCI\Plugin;
 use PHPCI\Builder;
 use PHPCI\Model\Build;
 use PHPCI\Helper\Lang;
@@ -13,29 +13,12 @@ use PHPCI\Helper\Lang;
 * @package      PHPCI
 * @subpackage   Plugins
 */
-class Drush implements PHPCI\Plugin, PHPCI\ZeroConfigPlugin
+class Drush implements Plugin
 {
     protected $directory;
+    protected $executable;
     protected $command;
     protected $phpci;
-
-    /**
-     * Check if this plugin can be executed.
-     * @param $stage
-     * @param Builder $builder
-     * @param Build $build
-     * @return bool
-     */
-    public static function canExecute($stage, Builder $builder, Build $build)
-    {
-        $path = $builder->buildPath . DIRECTORY_SEPARATOR . '/web/sites/default/settings.php';
-
-        if (file_exists($path)) {
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * Set up the plugin, configure options, etc.
@@ -52,11 +35,17 @@ class Drush implements PHPCI\Plugin, PHPCI\ZeroConfigPlugin
         $this->command     = '--version';
         
         if (array_key_exists('directory', $options)) {
-            $this->directory = $path . DIRECTORY_SEPARATOR . $options['directory'];
+            $this->directory = $options['directory'];
         }
 
         if (array_key_exists('command', $options)) {
             $this->command = $options['command'];
+        }
+        
+        if (isset($options['executable'])) {
+            $this->executable = $options['executable'];
+        } else {
+            $this->executable = $this->phpci->findBinary('drush');
         }
     }
 
@@ -65,17 +54,15 @@ class Drush implements PHPCI\Plugin, PHPCI\ZeroConfigPlugin
     */
     public function execute()
     {
-        $drushLocation = $this->phpci->findBinary(array('drush', 'drush.phar'));
+        $pwdLocation = $this->phpci->findBinary(array('pwd'));
+        $this->phpci->executeCommand($pwdLocation);
+        $build_location = $this->phpci->getLastOutput();
 
-        $cmd = '';
-
-        if (IS_WIN) {
-            $cmd = 'php ';
-        }
-
-        $cmd .= $drushLocation . ' -y ';
-        $cmd .= ' --root="%s" %s';
-
-        return $this->phpci->executeCommand($cmd, $this->directory, $this->command);
+        $cmd = 'cd ' . $build_location . '/' . $this->directory;
+        $cmd .= ' && ' . $this->executable . ' -y ';
+        $cmd .= $this->command;
+        
+        $this->phpci->executeCommand('/bin/echo "' . $cmd . '"');
+        return $this->phpci->executeCommand($cmd);
     }
 }
